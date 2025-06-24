@@ -1,0 +1,63 @@
+import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
+import { ToastContainer } from 'react-toastify';// used for error /suss msg on poup
+
+export default function Login() {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+
+  const [emailError, setEmailError] = useState('');
+  const [passwordError, setPasswordError] = useState('');
+
+  const handleLogin = async(e: React.FormEvent) => {
+    e.preventDefault();
+
+     // Reset error messages
+    setEmailError('');
+    setPasswordError('');
+
+    let isValid = true;
+
+ 
+    if(!email){
+      setEmailError('Email is required');
+      isValid= false;
+    }else if(!/\S+@\S+\.\S+/.test(email)){
+      setEmailError('Invalid email format'); // ✅ Add this
+        isValid = false;
+    }
+    if (password==''){
+      setPasswordError('Password is required!');
+      isValid = false;
+    }else if(password.length < 6){
+       setPasswordError('Password must be 6 charecter long!');
+       isValid = false;
+
+    }
+
+    if (!isValid) return;
+   // If valid, proceed
+    console.log('Login submitted ✅', { email, password:`received(${(password || '').length} charecter)` });
+  };
+
+  return (
+    <div className="container mt-5">
+      <h2  style={{ textAlign: "center" }}>Login</h2>
+      <form onSubmit={handleLogin} className="w-50">
+        <div className="mb-3">
+          <label>Email</label>
+          <input type="text" autoFocus className="form-control" value={email} onChange={e => setEmail(e.target.value)}  />
+         
+        </div>
+        {emailError && <div className="invalid-feedbak"  style={{ color: "red" }}>{emailError}</div>}
+        <div className="mb-3">
+          <label>Password</label>
+          <input type="password" autoFocus  className="form-control" value={password} onChange={e => setPassword(e.target.value)} placeholder='******' />
+        </div>
+        {passwordError && <div  style={{color:"red"}}>{passwordError}</div>}
+        <button type="submit" className="btn btn-primary">Login</button>
+      </form>
+      <p>Yet not have an account? <Link to="/register">SignUP/Register</Link></p>
+    </div>
+  );
+}
