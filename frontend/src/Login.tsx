@@ -27,37 +27,13 @@ const navigate = useNavigate();
     const response = await fetch(url, {
       method: "POST",
       headers: {'Content-Type': 'application/json'},
-<<<<<<< HEAD
-      credentials: "include", 
-      body: JSON.stringify(values)
-=======
        credentials: "include", 
       body: JSON.stringify(values)  // ✅ SEND only values here
       
->>>>>>> 59685a40d071d0ca8a7d5ffd171ba8f9c5d06362
     });
 
     const data = await response.json();
     console.log(data);
-<<<<<<< HEAD
-    if (response.ok) {
-      // Store user info in localStorage
-      localStorage.setItem('name', data.name);
-      localStorage.setItem('email', data.email);
-      toast.success("✅ Login Successful!");
-      setSuccessMessage("Login Successful!");
-      setTimeout(() => {
-        setSuccessMessage("");
-        resetForm();
-        navigate('/home');
-      }, 2000);
-    } else {
-      toast.error(data.message || "❌ Login failed");
-    }
-  } catch (error) {
-    console.error("❌ Login API Error:", error);
-    toast.error("❌ Login failed due to network error");
-=======
 if (response.ok) {
 
   // Store user info in localStorage
@@ -82,7 +58,6 @@ if (response.ok) {
   } catch (error) {
     console.error("❌ Signup API Error:", error);
     toast.error("❌ Signup failed due to network error");
->>>>>>> 59685a40d071d0ca8a7d5ffd171ba8f9c5d06362
   }
 },
   });

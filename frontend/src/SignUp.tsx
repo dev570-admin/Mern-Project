@@ -1,7 +1,4 @@
-<<<<<<< HEAD
 // SignUp or register new user
-=======
->>>>>>> 59685a40d071d0ca8a7d5ffd171ba8f9c5d06362
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
@@ -33,27 +30,11 @@ const navigate = useNavigate();
       headers: {
         'Content-Type': 'application/json'
       },
-<<<<<<< HEAD
-      body: JSON.stringify(values)
-=======
       body: JSON.stringify(values)  // ✅ SEND only values here
->>>>>>> 59685a40d071d0ca8a7d5ffd171ba8f9c5d06362
     });
 
     const data = await response.json();
     console.log(data);
-<<<<<<< HEAD
-    if (response.ok) {
-      toast.success("✅ Registration Successful!");
-      setSuccessMessage("Registration Successful!");
-      setTimeout(() => {
-        setSuccessMessage("");
-        resetForm();
-        navigate('/'); // Redirect to login page after signup
-      }, 2000);
-    } else {
-      toast.error(data.message || "❌ Signup failed");
-=======
 if (response.ok) {
   toast.success("✅ Registration Successful!");
   console.log("Form submitted ✅", values);
@@ -69,7 +50,6 @@ if (response.ok) {
 } else {
       toast.error(data.message || "❌ Signup failed");
       console.log(error);
->>>>>>> 59685a40d071d0ca8a7d5ffd171ba8f9c5d06362
     }
   } catch (error) {
     console.error("❌ Signup API Error:", error);
