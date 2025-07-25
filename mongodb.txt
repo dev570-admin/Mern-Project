@@ -1,0 +1,7 @@
+mongo db-> Atlast
+------------------------------------------------------------------------------------
+Username -> surajit
+password: pms@123
+
+clauster name : products
+ collections name : users 
