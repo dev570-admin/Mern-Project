@@ -10,9 +10,22 @@ import { ToastContainer,toast } from 'react-toastify';// used for error /suss ms
 import 'react-toastify/dist/ReactToastify.css';
 
 export default function SignUp() {
+
  const [successMessage , setSuccessMessage ]=useState("");
-const [showPassword, setShowPassword] = useState(false);
-const navigate = useNavigate();
+ const [showPassword, setShowPassword] = useState(false);
+ const navigate = useNavigate();
+ const formRef = React.useRef<HTMLFormElement>(null);
+
+ // Clear success message when clicking outside the form
+ React.useEffect(() => {
+   function handleClick(event: MouseEvent) {
+     if (formRef.current && !formRef.current.contains(event.target as Node)) {
+       setSuccessMessage("");
+     }
+   }
+   document.addEventListener('mousedown', handleClick);
+   return () => document.removeEventListener('mousedown', handleClick);
+ }, []);
 
   const formik = useFormik({
     initialValues: {
@@ -61,7 +74,7 @@ if (response.ok) {
   return (
     <div className="container mt-5">  
     <h2 style={{ textAlign: "center" }}>Register</h2>
-    <form onSubmit={formik.handleSubmit} className="w-50 mx-auto mt-5">
+    <form ref={formRef} onSubmit={formik.handleSubmit} className="w-50 mx-auto mt-5">
       {/* registration success msg */}
       {successMessage &&(<div className='alert alert-success'>{successMessage}</div>)}
       {/* Name Field */}
@@ -99,7 +112,7 @@ if (response.ok) {
 
       {/* Password Field */}
       <div className="mb-3">
-        <label className="form-label">Password</label>
+        <label className="form-label">Password  </label>
         <input
          type={showPassword ? "text" : "password"}
           name="password"
