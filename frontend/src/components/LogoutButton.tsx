@@ -26,7 +26,7 @@ const LogoutButton = () => {
       className="btn btn-danger"
       onClick={handleLogout}
     >
-      Logout 
+      Logout: 
     </button>
   );
 };
