@@ -28,6 +28,9 @@ app.use(cors({
   credentials: true
 }));
 
+// Serve static files (so uploaded images are accessible via URL)
+app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
+
 // Routing
 app.use('/api/auth', AuthRouter);
 app.use('/api/product', ProductRouter);//// api for Getting (Static)  product Dynamically
