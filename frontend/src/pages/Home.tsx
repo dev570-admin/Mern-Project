@@ -28,7 +28,7 @@ export default function Home() {
 
   const fetchProducts = async () => {
     try {
-      const res = await fetch('http://localhost:5000/api/product', {
+      const res = await fetch('http://localhost:5000/api/getallproducts', {
         method: 'GET',
         credentials: 'include',
       });
@@ -87,7 +87,7 @@ export default function Home() {
                 <div className="card-body">
                   <h5 className="card-title">{product.title}</h5>
                    <p className="card-text"> Product ID: {product.id}</p>
-                  <p className="card-text">{product.description}</p>
+                  <p className="card-text">Description: {product.description.split("").slice(0,50).join("")}...</p>
                   <p className="card-text"><strong>Category:</strong> {product.category}</p>
                   <p className="card-text"><strong>Price:</strong> ${product.price}</p>
                   <p className="card-text"><strong>Discount:</strong> ${product.discount} %</p>

@@ -48,3 +48,4 @@ export const loginSchema = Yup.object({
     .matches(/[0-9]/, '❌ Must contain at least one number')
     .matches(/[@$!%*#?&]/, '❌ Must contain at least one special character'),
 });
+

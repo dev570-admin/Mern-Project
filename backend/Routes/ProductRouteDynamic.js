@@ -1,9 +1,11 @@
 //routes/ProductRouteDynamic.js
 import express  from 'express';
 import ProductModel from '../Models/Product.js';
+import Counter from '../Models/Counter.js'; //
 import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
+
 
 
 const router =express.Router();
@@ -39,16 +41,27 @@ router.post('/',  upload.fields([
   try {
     const {  title, description, price, category, image, gallery } = req.body;
     // handle main image 
-    const mainImage = req.files["image"]
-        ? `/uploads/${req.files["image"][0].filename}`
-        : null;
+    let mainImage = null;
+    let galleryImages = [];
+    if (req.files) {
+      if (req.files["image"] && req.files["image"].length > 0) {
+        mainImage = `/uploads/${req.files["image"][0].filename}`;
+      }
+      if (req.files["gallery"] && req.files["gallery"].length > 0) {
+        galleryImages = req.files["gallery"].map((file) => `/uploads/${file.filename}`);
+      }
+    }
 
-        // Handle gallery images
-      const galleryImages = req.files["gallery"]
-        ? req.files["gallery"].map((file) => `/uploads/${file.filename}`)
-        : [];
+    // ✅ Generate auto-increment productId
+      const counter = await Counter.findOneAndUpdate(
+        { name: "productId" },
+        { $inc: { value: 1 } },
+        { new: true, upsert: true }
+      );
+
 
      const newProduct = new ProductModel({
+      productId: counter.value,
         title,
         description,
         price,
@@ -56,6 +69,8 @@ router.post('/',  upload.fields([
         image: mainImage,
         gallery: galleryImages,
       });
+
+
 
  const savedProduct = await newProduct.save();
       res.status(201).json(savedProduct);

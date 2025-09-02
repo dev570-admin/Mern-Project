@@ -9,6 +9,7 @@ import mongoose from 'mongoose';
 import AuthRouter from './Routes/AuthRouter.js';
 import ProductRouter from './Routes/ProductRouter.js';
 import ProductRouteDynamic from './Routes/ProductRouteDynamic.js'
+import GetAllProducts from './Routes/GetAllProducts.js';
 
 import UserModel from './Models/User.js';
 import path from 'path';
@@ -37,8 +38,9 @@ app.use(cors({
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 // Routing
 app.use('/api/auth', AuthRouter);
-app.use('/api/product', ProductRouter);//// api for Getting (Static)  product Dynamically
+app.use('/api/products', ProductRouter);//// api for Getting (Static)  product Dynamically
 app.use('/api/addproduct', ProductRouteDynamic);// api for Adding  new product Dynamically
+app.use('/api/getallproducts', GetAllProducts);//api for Getting  app.use('/api/getallproducts', GetAllProducts);//api for Getting  allproduct Dynamicallyproduct Dynamically
 
 connection();
 

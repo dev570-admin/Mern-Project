@@ -2,14 +2,16 @@ import React, { useState } from 'react';
 import axios from '../axios';
 import 'trix/dist/trix.css';
 import 'trix';
+import { ToastContainer,toast } from 'react-toastify';// used for error /suss msg on poup
+import 'react-toastify/dist/ReactToastify.css';
 
 function AddProducts() {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [price, setPrice] = useState(0);
   const [category, setCategory] = useState('');
-  const [image, setImgurl] = useState('');
-  const [gallery, setGalImgurl] = useState('');
+  const [image, setImage] = useState<File | null>(null);
+  const [gallery, setGallery] = useState<FileList | null>(null);
 
   // ✅ Update hidden input directly from Trix editor
   const handleTrixChange = (e) => {
@@ -19,32 +21,44 @@ function AddProducts() {
   const addProduct = (e) => {
     e.preventDefault();
 
-    axios.post("http://localhost:5000/api/addproduct", {
-      title,
-      description,
-      price,
-      category,
-      image,
-      gallery
-    })
-    .then((response) => {
-      console.log("✅ Product added:", response.data);
+    const formData = new FormData();
+    formData.append('title', title);
+    formData.append('description', description);
+    formData.append('price', price.toString());
+    formData.append('category', category);
+    if (image) {
+      formData.append('image', image);
+    }
+    if (gallery) {
+      Array.from(gallery).forEach((file) => {
+        formData.append('gallery', file);
+      });
+    }
 
-      // Resetting input values
-      setTitle('');
-      setDescription('');
-      setPrice(0);
-      setCategory('');
-      setImgurl('');
-      setGalImgurl('');
+    axios.post("http://localhost:5000/api/addproduct", formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
     })
-    .catch((error) => {
-      console.error("❌ Error adding product:", error.message);
-    });
+      .then((response) => {
+        toast.success(" Product added Successfully!");
+        console.log("✅ Product added:", response.data);
+        // Resetting input values
+        setTitle('');
+        setDescription('');
+        setPrice(0);
+        setCategory('');
+        setImage(null);
+        setGallery(null);
+      })
+      .catch((error) => {
+       
+        toast.error("❌  Product information is missing");
+        console.error("❌ Error adding product:", error.message);
+      });
   };
 
   return (
     <div>
+      <ToastContainer position="top-right"  />
       <h1 className="text-center mt-4">Add Products</h1>
 
       <form className="w-50 mx-auto mt-4" onSubmit={addProduct}>
@@ -66,7 +80,7 @@ function AddProducts() {
             rows={5}
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            required
+           
           />
         </div>
 
@@ -91,21 +105,22 @@ function AddProducts() {
         </div>
 
         <div className="mb-3">
-          <label className="form-label">Image URL</label>
+          <label className="form-label">Main Image</label>
           <input
-            type="text"
-            value={image}
-            onChange={(e) => setImgurl(e.target.value)}
+            type="file"
+            accept="image/*"
+            onChange={(e) => setImage(e.target.files ? e.target.files[0] : null)}
             className="form-control"
           />
         </div>
 
         <div className="mb-3">
-          <label className="form-label">Gallery Image URL</label>
+          <label className="form-label">Gallery Images</label>
           <input
-            type="text"
-            value={gallery}
-            onChange={(e) => setGalImgurl(e.target.value)}
+            type="file"
+            accept="image/*"
+            multiple
+            onChange={(e) => setGallery(e.target.files)}
             className="form-control"
           />
         </div>
