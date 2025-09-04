@@ -12,17 +12,18 @@ type Product = {
 };
 
 export default function Home() {
+  const [CurrentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 6; // Number of products per page
   const [loggedInUser, setLoggedInUser] = useState('');
   const [products, setProducts] = useState<Product[]>([]);
   const navigate = useNavigate();
+
 
   useEffect(() => {
     const name = localStorage.getItem('name');
     if (name) {
       setLoggedInUser(name);
     }
-
-
     fetchProducts();  // Try fetching products regardless of cookie
   }, []);
 
@@ -41,8 +42,14 @@ export default function Home() {
       console.error('❌ Failed to fetch products:', err);
     }
   };
- fetchProducts();
+ // calculate indexes for pagination
  
+ const indexOfLastItem = CurrentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentProducts = products.slice(indexOfFirstItem, indexOfLastItem);
+  //change page 
+  const TotalPages = Math.ceil(products.length / itemsPerPage);
+
   const handleLogout = async () => {
     try {
       await fetch("http://localhost:5000/api/auth/logout", {
@@ -80,13 +87,12 @@ export default function Home() {
       {/* Product List */}
       <div className="row mt-3">
         {products.length > 0 ? (
-          products.map((product,index) => (
-          
+          currentProducts.map((product,index) => (
             <div className="col-md-4" key={product.id}> 
               <div className="card mb-3">
                 <div className="card-body">
                   <h5 className="card-title">{product.title}</h5>
-                   <p className="card-text"> Product ID: {product.id}</p>
+                   <p className="card-text"> Product ID: {product.productId}</p>
                   <p className="card-text">Description: {product.description.split("").slice(0,50).join("")}...</p>
                   <p className="card-text"><strong>Category:</strong> {product.category}</p>
                   <p className="card-text"><strong>Price:</strong> ${product.price}</p>
@@ -105,6 +111,32 @@ export default function Home() {
             <p>Wait or logged out and logged in again</p>
           </div>
         )}
+      </div>
+      {/* Pagination Controls */}
+      <div className="d-flex justify-content-center my-4 align-items-center">
+        <button className="btn btn-secondary me-2" 
+          onClick={()=> setCurrentPage((prev) => Math.max(prev- 1,1))}
+          disabled={CurrentPage === 1}
+        > ◀ Prev</button>
+
+        {/* Page number buttons */}
+        {Array.from({ length: TotalPages }, (_, i) => (
+          <button
+            key={i + 1}
+            className={`btn btn-outline-primary mx-1${CurrentPage === i + 1 ? ' active' : ''}`}
+            onClick={() => setCurrentPage(i + 1)}
+          >
+            {i + 1}
+          </button>
+        ))}
+
+        <button
+          className="btn btn-secondary ms-2"
+          onClick={() => setCurrentPage((prev) => Math.min(prev + 1, TotalPages))}
+          disabled={CurrentPage === TotalPages}
+        >
+          Next ▶
+        </button>
       </div>
     </div>
   );
