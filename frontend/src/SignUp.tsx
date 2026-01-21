@@ -53,10 +53,8 @@ if (response.ok) {
   console.log("Form submitted ✅", values);
   setSuccessMessage("Registration Successful!");
 
-  setTimeout(() => {
-   navigate('/');
-    setSuccessMessage("");
-  }, 3000);
+  navigate('/');
+  setSuccessMessage("");
 
   resetForm();
  console.log("Response from API:", values.message);
@@ -72,6 +70,7 @@ if (response.ok) {
   });
 
   return (
+    <div>  
     <div className="container mt-5">  
     <h2 style={{ textAlign: "center" }}>Register</h2>
     <form ref={formRef} onSubmit={formik.handleSubmit} className="w-50 mx-auto mt-5">
@@ -167,10 +166,11 @@ if (response.ok) {
         )}
       </div>
 
-      <button type="submit" className="btn btn-success">Register</button>
-        <Link to="/"  className="btn btn-primary" style={{ color: "#ffffff", marginLeft:"10px" }}> Login</Link>
-    </form>
-      
-    </div>
+         <button type="submit" className="btn btn-success">Register</button>
+     </form>
+  
+      </div>
+           <p>All ready have an account? <Link to="/" >SignIn/Login</Link></p>
+   </div> 
   );
 }

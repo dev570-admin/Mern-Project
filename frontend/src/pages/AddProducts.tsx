@@ -17,7 +17,7 @@ function AddProducts() {
   const handleTrixChange = (e) => {
     setDescription(e.target.innerHTML);
   };
-
+   
   const addProduct = (e) => {
     e.preventDefault();
 
@@ -59,17 +59,18 @@ function AddProducts() {
   return (
     <div>
       <ToastContainer position="top-right"  />
-      <h1 className="text-center mt-4">Add Products</h1>
+      <h1 className="text-center mt-4">Add new product</h1>
 
       <form className="w-50 mx-auto mt-4" onSubmit={addProduct}>
         <div className="mb-3">
-          <label className="form-label">Add Title</label>
+          <label className="form-label">Product Name</label>
           <input
             type="text"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             className="form-control"
             autoFocus
+            placeholder='Product name'
           />
         </div>
 
