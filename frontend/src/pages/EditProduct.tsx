@@ -237,7 +237,7 @@ const EditProduct = () => {
           }
         }
       );
-      
+        
       toast.success('Product updated successfully!', {
         onClose: () => navigate('/home')
       });
