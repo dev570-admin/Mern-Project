@@ -211,12 +211,14 @@ const EditProduct = () => {
       
       // Add all product fields to formData
       Object.entries(product).forEach(([key, value]) => {
-        if (key === 'gallery' && Array.isArray(value)) {
-          // Handle gallery files
-          value.forEach((file, index) => {
-            if (file instanceof File) {
-              formData.append('gallery', file);
-            }
+        if (key === 'gallery') {
+          // Send existing gallery URLs as JSON
+          const existingUrls = Array.isArray(value) ? value.filter(item => typeof item === 'string') : [];
+          formData.append('existingGallery', JSON.stringify(existingUrls));
+          // Send new files
+          const newFiles = Array.isArray(value) ? value.filter(item => item instanceof File) : [];
+          newFiles.forEach((file) => {
+            formData.append('gallery', file);
           });
         } else if (value !== null && value !== undefined) {
           if (key === 'image' && value instanceof File) {
@@ -260,29 +262,6 @@ const EditProduct = () => {
       setIsSubmitting(false);
     }
   };
-
-  if (loading) {
-    return (
-      <div className="container mt-5 text-center">
-        <div className="spinner-border" role="status">
-          <span className="visually-hidden">Loading...</span>
-        </div>
-        <p className="mt-2">Loading product details...</p>
-      </div>
-    );
-  }
-
-  // Remove the duplicate loading check and useEffect for previews
-  // Set up initial previews when product data loads
-  useEffect(() => {
-    if (product.image && typeof product.image === 'string') {
-      setPreviewImage(`http://localhost:5000${product.image}`);
-    }
-
-    if (product.gallery && product.gallery.length > 0 && typeof product.gallery[0] === 'string') {
-      setGalleryPreviews((product.gallery as string[]).map(img => `http://localhost:5000${img}`));
-    }
-  }, [product.image, product.gallery]);
 
   if (loading) {
     return (
