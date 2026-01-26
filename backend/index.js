@@ -1,4 +1,5 @@
 import express from 'express';
+import path from 'path';
 import dotenv from 'dotenv';
 import connection from "./Models/db.js";
 
@@ -10,12 +11,7 @@ import AuthRouter from './Routes/AuthRouter.js';
 import ProductRouter from './Routes/ProductRouter.js';
 import ProductRouteDynamic from './Routes/ProductRouteDynamic.js'
 import GetAllProducts from './Routes/GetAllProducts.js';
-
-import UserModel from './Models/User.js';
-import path from 'path';
-import { fileURLToPath } from 'url';
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+import multer from 'multer';
 
 import cookieParser from "cookie-parser";
 
@@ -30,12 +26,12 @@ app.use(express.json());
 app.use(cookieParser());
 
 app.use(cors({
-  origin: "http://localhost:5173",
+  origin: ["http://localhost:5173", "http://localhost:5174"],
   credentials: true
 }));
 
-// Serve static files (so uploaded images are accessible via URL)
-app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+// serve uploads folder as static
+app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 // Routing
 app.use('/api/auth', AuthRouter);
 app.use('/api/products', ProductRouter);//// api for Getting (Static)  product Dynamically

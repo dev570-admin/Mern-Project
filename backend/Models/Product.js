@@ -32,6 +32,10 @@ const ProductSchema = new Schema({
   gallery: {
     type: [String], // ✅ Array of image URLs
     default: [],
+  },
+  discount: {
+    type: Number,
+    default: 0,
   }
 }, { timestamps: true });
 
