@@ -4,6 +4,7 @@
 # Build files
 **/build/
 **/dist/
+**/Project-flow/
 
 # OS junk
 .DS_Store
