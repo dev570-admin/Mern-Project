@@ -26,6 +26,7 @@ app.use(
     origin: [
       "http://localhost:5173",
       "http://localhost:5174",
+      "https://productstack.vercel.app/",
       process.env.FRONTEND_URL, // Vercel frontend
     ],
     credentials: true,
