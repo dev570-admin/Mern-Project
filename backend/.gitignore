@@ -1,11 +1,20 @@
-# Ignore node_modules
-**/node_modules/
+# Ignore dependencies
+node_modules/
 
-# Build files
-**/build/
-**/dist/
-**/Project-flow/
+# Ignore build outputs
+build/
+dist/
+
+# Logs
+logs/
+*.log
 
 # OS junk
 .DS_Store
 Thumbs.db
+
+# Environment variables
+*.env
+
+# Ignore uploads directory
+uploads/

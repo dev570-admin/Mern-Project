@@ -1,19 +1,8 @@
 import { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from '../axios';
+import axios from 'axios';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-
-// Get API base URL from environment or use localhost
-const getApiUrl = () => {
-  if (import.meta.env.VITE_API_URL) {
-    return import.meta.env.VITE_API_URL;
-  }
-  if (import.meta.env.DEV) {
-    return "http://localhost:5000";
-  }
-  return window.location.origin;
-};
 
 // Define the Product type
 type Product = {
@@ -52,8 +41,8 @@ export default function Home() {
     setError(null);
     
     try {
-      console.log('Making API request to get products');
-      const response = await axios.get(`${getApiUrl()}/api/getallproducts`, {
+      console.log('Making API request to http://localhost:5000/api/getallproducts');
+      const response = await axios.get('http://localhost:5000/api/getallproducts', {
         withCredentials: true,
         headers: {
           'Cache-Control': 'no-cache',
@@ -114,7 +103,7 @@ export default function Home() {
 
     try {
       setIsDeleting(String(productId));
-      await axios.delete(`${getApiUrl()}/api/addproduct/${productId}`, {
+      await axios.delete(`http://localhost:5000/api/addproduct/${productId}`, {
         withCredentials: true,
         headers: {
           'Content-Type': 'application/json'
@@ -260,7 +249,7 @@ export default function Home() {
                       <img
                         src={
                           product.image 
-                            ? `${getApiUrl()}${product.image}`
+                            ? `http://localhost:5000${product.image}`
                             : 'https://via.placeholder.com/40x40?text=No+Image'
                         }
                         alt={product.title}
@@ -278,7 +267,7 @@ export default function Home() {
                           {product.gallery.slice(0, 3).map((img, i) => (
                             <img
                               key={i}
-                              src={`${getApiUrl()}${img}`}
+                              src={`http://localhost:5000${img}`}
                               alt={`Gallery ${i + 1}`}
                               width="30"
                               height="30"

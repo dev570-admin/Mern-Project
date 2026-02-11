@@ -1,19 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import axios from '../axios';
+import axios from 'axios';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-
-// Get API base URL from environment or use localhost
-const getApiUrl = () => {
-  if (import.meta.env.VITE_API_URL) {
-    return import.meta.env.VITE_API_URL;
-  }
-  if (import.meta.env.DEV) {
-    return "http://localhost:5000";
-  }
-  return window.location.origin;
-};
 
 interface Product {
   _id: string;
@@ -56,7 +45,7 @@ const EditProduct = () => {
       try {
         console.log('Fetching product with ID:', id);
         setLoading(true);
-        const response = await axios.get(`${getApiUrl()}/api/addproduct/${id}`, {
+        const response = await axios.get(`http://localhost:5000/api/addproduct/${id}`, {
           withCredentials: true
         });
 
@@ -66,10 +55,10 @@ const EditProduct = () => {
           setProduct(response.data);
           // Set initial previews immediately
           if (response.data.image && typeof response.data.image === 'string') {
-            setPreviewImage(`${getApiUrl()}${response.data.image}`);
+            setPreviewImage(`http://localhost:5000${response.data.image}`);
           }
           if (response.data.gallery && response.data.gallery.length > 0) {
-            setGalleryPreviews(response.data.gallery.map((img: string) => `${getApiUrl()}${img}`));
+            setGalleryPreviews(response.data.gallery.map((img: string) => `http://localhost:5000${img}`));
           }
         }
       } catch (error: any) {
@@ -241,7 +230,7 @@ const EditProduct = () => {
       });
       
       const response = await axios.put(
-        `${getApiUrl()}/api/addproduct/${id}`, 
+        `http://localhost:5000/api/addproduct/${id}`, 
         formData,
         {
           withCredentials: true,

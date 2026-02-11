@@ -1,58 +1,59 @@
 //routes/ProductRouteDynamic.js
-import express from 'express';
+import express  from 'express';
 import ProductModel from '../Models/Product.js';
-import Counter from '../Models/Counter.js';
+import Counter from '../Models/Counter.js'; //
 import multer from 'multer';
+import path from 'path';
+import fs from 'fs';
 import mongoose from 'mongoose';
 import ensureAuthenticated from '../Middleware/AuthProduct.js';
 
-const router = express.Router();
 
-// ✅ VERCEL COMPATIBLE: Use memory storage instead of disk
-const upload = multer({
-  storage: multer.memoryStorage(),
-  limits: {
-    fileSize: 10 * 1024 * 1024, // 10MB limit
+
+const router =express.Router();
+// ===================
+// Uploads Directory
+// ===================
+const uploadsDir = path.join(process.cwd(), 'uploads');
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir);
+}
+
+
+// ===================
+// Multer Storage Config
+// ===================
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, uploadsDir);
   },
-  fileFilter: (req, file, cb) => {
-    // Accept images only
-    if (file.mimetype.startsWith('image/')) {
-      cb(null, true);
-    } else {
-      cb(new Error('Only image files are allowed'), false);
-    }
+  filename: function (req, file, cb) {
+    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
+    cb(null, uniqueSuffix + path.extname(file.originalname));
   },
 });
 
-// Helper function to convert buffer to base64
-const bufferToBase64 = (buffer) => {
-  return 'data:image/jpeg;base64,' + buffer.toString('base64');
-};
+const upload = multer({ storage });
 
 // POST /api/product — Create a new product
-router.post('/', upload.fields([
+router.post('/',  upload.fields([
   { name: 'image', maxCount: 1 },
   { name: 'gallery', maxCount: 5 },
 ]), async (req, res) => {
   try {
-    const { title, description, price, category } = req.body;
-    
-    // Handle main image (convert to base64)
-    let mainImage = null;
-    let galleryImages = [];
+    const {  title, description, price, category, image, gallery } = req.body;
+    // handle main image 
+let mainImage = null;
+let galleryImages = [];
 
-    if (req.files) {
-      if (req.files['image'] && req.files['image'].length > 0) {
-        // Store as base64 data URL
-        mainImage = bufferToBase64(req.files['image'][0].buffer);
-      }
-      if (req.files['gallery'] && req.files['gallery'].length > 0) {
-        // Store gallery images as base64
-        galleryImages = req.files['gallery'].map((file) =>
-          bufferToBase64(file.buffer)
-        );
-      }
-    }
+if (req.files) {
+  if (req.files["image"] && req.files["image"].length > 0) {
+    mainImage = `/uploads/${req.files["image"][0].filename}`; // Save full path
+  }
+  if (req.files["gallery"] && req.files["gallery"].length > 0) {
+    galleryImages = req.files["gallery"].map((file) => `/uploads/${file.filename}`); // Save full path
+  }
+}
 
     // ✅ Generate auto-increment productId
       const counter = await Counter.findOneAndUpdate(
@@ -127,16 +128,19 @@ router.put('/:id', upload.fields([
     // Handle image update if provided
     if (req.files) {
       if (req.files['image'] && req.files['image'].length > 0) {
-        // ✅ VERCEL SAFE: No need to delete files from disk
-        // Base64 images are stored in MongoDB, files never touch disk
+        // Remove old image if it exists
+        const existingProduct = await ProductModel.findById(req.params.id);
         if (existingProduct && existingProduct.image) {
-          console.log('Image update: old image will be replaced in database');
+          const oldImagePath = path.join(process.cwd(), existingProduct.image);
+          if (fs.existsSync(oldImagePath)) {
+            fs.unlinkSync(oldImagePath);
+          }
         }
-        updateData.image = bufferToBase64(req.files['image'][0].buffer);
+        updateData.image = `/uploads/${req.files['image'][0].filename}`;
       }
       
       if (req.files['gallery'] && req.files['gallery'].length > 0) {
-        const newGalleryImages = req.files['gallery'].map(file => bufferToBase64(file.buffer));
+        const newGalleryImages = req.files['gallery'].map(file => `/uploads/${file.filename}`);
         // Combine existing gallery with new images
         const existing = existingGallery ? JSON.parse(existingGallery) : [];
         updateData.gallery = [...existing, ...newGalleryImages];
@@ -191,15 +195,22 @@ router.delete('/:id', async (req, res) => {
       return res.status(404).json({ message: 'Product not found' });
     }
     
-    // ✅ VERCEL SAFE: No file system cleanup needed
-    // Base64 images are stored in database, not on disk
+    // Delete associated images if they exist
     if (product.image) {
-      console.log('Product deletion: image removed from database');
+      const imagePath = path.join(process.cwd(), product.image);
+      if (fs.existsSync(imagePath)) {
+        fs.unlinkSync(imagePath);
+      }
     }
     
-    // Delete gallery images references (database cleanup only)
+    // Delete gallery images if they exist
     if (product.gallery && product.gallery.length > 0) {
-      console.log('Product deletion: gallery images removed from database');
+      product.gallery.forEach(image => {
+        const galleryPath = path.join(process.cwd(), image);
+        if (fs.existsSync(galleryPath)) {
+          fs.unlinkSync(galleryPath);
+        }
+      });
     }
     
     res.json({ message: 'Product deleted successfully' });

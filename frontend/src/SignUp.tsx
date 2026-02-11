@@ -9,17 +9,6 @@ import { signUpSchema } from './schemas';
 import { ToastContainer,toast } from 'react-toastify';// used for error /suss msg on poup
 import 'react-toastify/dist/ReactToastify.css';
 
-// Get API base URL from environment or use localhost
-const getApiUrl = () => {
-  if (import.meta.env.VITE_API_URL) {
-    return import.meta.env.VITE_API_URL;
-  }
-  if (import.meta.env.DEV) {
-    return "http://localhost:5000";
-  }
-  return window.location.origin;
-};
-
 export default function SignUp() {
 
  const [successMessage , setSuccessMessage ]=useState("");
@@ -48,7 +37,7 @@ export default function SignUp() {
     validationSchema: signUpSchema,
    onSubmit: async (values, { resetForm }) => {
   try {
-    const url = `${getApiUrl()}/api/auth/signup`;
+    const url = "http://localhost:5000/api/auth/signup";
     const response = await fetch(url, {
       method: "POST",
       headers: {

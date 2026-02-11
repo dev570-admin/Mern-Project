@@ -1,8 +1,9 @@
 import express from "express";
+import path from "path";
 import dotenv from "dotenv";
 import cors from "cors";
 import cookieParser from "cookie-parser";
-import path from "path";
+import mongoose from "mongoose";
 
 import connection from "./Models/db.js";
 
@@ -15,91 +16,52 @@ dotenv.config();
 
 const app = express();
 
-/* ---------- Middleware ---------- */
+/* ================= MIDDLEWARE ================= */
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
 app.use(
   cors({
-    origin: function (origin, callback) {
-      const allowedOrigins = [
-        "http://localhost:5173",
-        "http://localhost:5174",
-        "https://productstack.vercel.app",
-        process.env.FRONTEND_URL || "https://productstack.vercel.app",  // Vercel frontend URL from env
-      ];
-      
-      // Allow requests with no origin (like mobile apps or curl requests)
-      if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        console.warn(`⚠️ CORS blocked origin: ${origin}`);
-        callback(new Error("Not allowed by CORS"));
-      }
-    },
+    origin: [
+      "http://localhost:5173",
+      "http://localhost:5174",
+      process.env.FRONTEND_URL, // Vercel frontend
+    ],
     credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
-    allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
 
-/* ---------- DB Connection (Safe for Serverless) ---------- */
+/* ================= DB ================= */
 connection();
 
-/* ---------- Routes ---------- */
+/* ================= ROUTES ================= */
 app.get("/", (req, res) => {
-  res.json({ message: "API is running on Vercel 🚀" });
+  res.json({ message: "API running ✅" });
 });
-
-app.get("/api/cors-test", (req, res) => {
-  res.json({ origin: req.headers.origin });
-}); // temporary route to test CORS functionality
-
-app.get("/api/health", (req, res) => {
-  res.json({ 
-    message: "✅ API is healthy",
-    mongoConnected: true,
-    nodeEnv: process.env.NODE_ENV
-  });
-}); 
-
 
 app.use("/api/auth", AuthRouter);
 app.use("/api/products", ProductRouter);
 app.use("/api/addproduct", ProductRouteDynamic);
 app.use("/api/getallproducts", GetAllProducts);
 
-/* ---------- Error Handling ---------- */
-app.use((err, req, res, next) => {
-  console.error('Error:', err.message);
-  res.status(err.status || 500).json({
-    message: err.message || 'Internal Server Error',
-    success: false
-  });
-});
-
+/* ================= ERROR HANDLING ================= */
 app.use((req, res) => {
-  res.status(404).json({
-    message: 'Route not found',
-    success: false
-  });
+  res.status(404).json({ message: "Route not found" });
 });
 
-/* ❌ DO NOT use app.listen() */
-export default app;
+app.use((err, req, res, next) => {
+  console.error(err);
+  res.status(500).json({ message: "Internal Server Error" });
+});
 
-/* ---------- Local Development Server ---------- */
-// Only start server if running locally (not in Vercel)
-if (process.env.NODE_ENV !== 'production' && !process.env.VERCEL) {
+/* ================= LOCAL SERVER ================= */
+if (process.env.NODE_ENV !== "production") {
   const PORT = process.env.PORT || 5000;
-  
-  connection().then(() => {
-    app.listen(PORT, () => {
-      console.log(`✅ Server running on http://localhost:${PORT}`);
-    });
-  }).catch(err => {
-    console.error('❌ Failed to start server:', err.message);
-    process.exit(1);
-  });
+  app.listen(PORT, () =>
+    console.log(`🚀 Server running locally on port ${PORT}`)
+  );
 }
 
+/* ================= EXPORT FOR VERCEL ================= */
+export default app;
