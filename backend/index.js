@@ -24,7 +24,7 @@ app.use(
     origin: [
       "http://localhost:5173",
       "http://localhost:5174",
-      process.env.FRONTEND_URL, // ✅ Vercel frontend
+      process.env.https://productstack.vercel.app/, // ✅ Vercel frontend
     ],
     credentials: true,
   })
@@ -37,6 +37,11 @@ connection();
 app.get("/", (req, res) => {
   res.json({ message: "API is running on Vercel 🚀" });
 });
+
+app.get("/api/cors-test", (req, res) => {
+  res.json({ origin: req.headers.origin });
+}); // temporary route to test CORS functionality 
+
 
 app.use("/api/auth", AuthRouter);
 app.use("/api/products", ProductRouter);
