@@ -1,0 +1,66 @@
+version: '3.8'
+
+services:
+  # MongoDB Database
+  mongodb:
+    image: mongo:6
+    container_name: mern-mongodb
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_DATABASE: merndb
+    volumes:
+      - mongodb_data:/data/db
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Backend API
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: mern-backend
+    ports:
+      - "5000:5000"
+    environment:
+      NODE_ENV: development
+      MONGO_URI: mongodb://mongodb:27017/merndb
+      JWT_SECRET: your-secret-key-change-in-production
+      FRONTEND_URL: http://localhost:5173
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    volumes:
+      - ./backend:/app/backend
+    command: npm start
+    healthcheck:
+      test: curl -f http://localhost:5000/api/health || exit 1
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Frontend (optional - uncomment to use)
+  # frontend:
+  #   build:
+  #     context: ./frontend
+  #     dockerfile: Dockerfile
+  #   container_name: mern-frontend
+  #   ports:
+  #     - "5173:5173"
+  #   environment:
+  #     VITE_API_BASE_URL: http://localhost:5000/
+  #   depends_on:
+  #     - backend
+  #   volumes:
+  #     - ./frontend:/app/frontend
+  #   command: npm run dev
+
+volumes:
+  mongodb_data:
+
+networks:
+  default:
+    name: mern-network

@@ -25,6 +25,7 @@ app.use(
       const allowedOrigins = [
         "http://localhost:5173",
         "http://localhost:5174",
+        "https://productstack.vercel.app",
         process.env.FRONTEND_URL || "https://productstack.vercel.app",  // Vercel frontend URL from env
       ];
       
@@ -32,6 +33,7 @@ app.use(
       if (!origin || allowedOrigins.includes(origin)) {
         callback(null, true);
       } else {
+        console.warn(`⚠️ CORS blocked origin: ${origin}`);
         callback(new Error("Not allowed by CORS"));
       }
     },
@@ -51,7 +53,15 @@ app.get("/", (req, res) => {
 
 app.get("/api/cors-test", (req, res) => {
   res.json({ origin: req.headers.origin });
-}); // temporary route to test CORS functionality 
+}); // temporary route to test CORS functionality
+
+app.get("/api/health", (req, res) => {
+  res.json({ 
+    message: "✅ API is healthy",
+    mongoConnected: true,
+    nodeEnv: process.env.NODE_ENV
+  });
+}); 
 
 
 app.use("/api/auth", AuthRouter);
