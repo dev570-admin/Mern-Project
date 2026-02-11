@@ -10,6 +10,17 @@ import {loginSchema} from './schemas'
 import { ToastContainer,toast } from 'react-toastify';// used for error /suss msg on poup
 import 'react-toastify/dist/ReactToastify.css';
 
+// Get API base URL from environment or use localhost
+const getApiUrl = () => {
+  if (import.meta.env.VITE_API_URL) {
+    return import.meta.env.VITE_API_URL;
+  }
+  if (import.meta.env.DEV) {
+    return "http://localhost:5000";
+  }
+  return window.location.origin;
+};
+
 export default function Login() {
  const [successMessage , setSuccessMessage ]=useState("");
 const [showPassword, setShowPassword] = useState(false);
@@ -23,7 +34,7 @@ const navigate = useNavigate();
     validationSchema: loginSchema,
    onSubmit: async (values, { resetForm }) => {
   try {
-    const url = "http://localhost:5000/api/auth/login";
+    const url = `${getApiUrl()}/api/auth/login`;
     const response = await fetch(url, {
       method: "POST",
       headers: {'Content-Type': 'application/json'},

@@ -5,6 +5,17 @@ import 'trix';
 import { ToastContainer,toast } from 'react-toastify';// used for error /suss msg on poup
 import 'react-toastify/dist/ReactToastify.css';
 
+// Get API base URL from environment or use localhost
+const getApiUrl = () => {
+  if (import.meta.env.VITE_API_URL) {
+    return import.meta.env.VITE_API_URL;
+  }
+  if (import.meta.env.DEV) {
+    return "http://localhost:5000";
+  }
+  return window.location.origin;
+};
+
 function AddProducts() {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -35,7 +46,7 @@ function AddProducts() {
       });
     }
 
-    axios.post("http://localhost:5000/api/addproduct", formData, {
+    axios.post(`${getApiUrl()}/api/addproduct`, formData, {
       headers: { 'Content-Type': 'multipart/form-data' }
     })
       .then((response) => {
