@@ -4,12 +4,12 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import path from "path";
 
-import connection from "../Models/db.js";
+import connection from "./Models/db.js";
 
-import AuthRouter from "../Routes/AuthRouter.js";
-import ProductRouter from "../Routes/ProductRouter.js";
-import ProductRouteDynamic from "../Routes/ProductRouteDynamic.js";
-import GetAllProducts from "../Routes/GetAllProducts.js";
+import AuthRouter from "./Routes/AuthRouter.js";
+import ProductRouter from "./Routes/ProductRouter.js";
+import ProductRouteDynamic from "./Routes/ProductRouteDynamic.js";
+import GetAllProducts from "./Routes/GetAllProducts.js";
 
 dotenv.config();
 
@@ -69,5 +69,37 @@ app.use("/api/products", ProductRouter);
 app.use("/api/addproduct", ProductRouteDynamic);
 app.use("/api/getallproducts", GetAllProducts);
 
+/* ---------- Error Handling ---------- */
+app.use((err, req, res, next) => {
+  console.error('Error:', err.message);
+  res.status(err.status || 500).json({
+    message: err.message || 'Internal Server Error',
+    success: false
+  });
+});
+
+app.use((req, res) => {
+  res.status(404).json({
+    message: 'Route not found',
+    success: false
+  });
+});
+
 /* ❌ DO NOT use app.listen() */
 export default app;
+
+/* ---------- Local Development Server ---------- */
+// Only start server if running locally (not in Vercel)
+if (process.env.NODE_ENV !== 'production' && !process.env.VERCEL) {
+  const PORT = process.env.PORT || 5000;
+  
+  connection().then(() => {
+    app.listen(PORT, () => {
+      console.log(`✅ Server running on http://localhost:${PORT}`);
+    });
+  }).catch(err => {
+    console.error('❌ Failed to start server:', err.message);
+    process.exit(1);
+  });
+}
+

@@ -39,7 +39,14 @@ const connection = async () => {
     return conn;
   } catch (error) {
     console.error('❌ MongoDB connection error:', error.message);
-    throw error; // Re-throw so calling code knows about the failure
+    // For local development, you might want to continue without DB
+    // For production/Vercel, this should fail loudly
+    if (process.env.NODE_ENV === 'production') {
+      throw error; // Re-throw so calling code knows about the failure
+    }
+    // Local: just log and continue
+    console.warn('⚠️  Continuing without MongoDB connection');
+    return null;
   }
 };
 
