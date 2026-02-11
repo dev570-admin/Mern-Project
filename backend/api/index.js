@@ -52,27 +52,30 @@ app.use(cors({
 // ============ INITIALIZE DATABASE ============
 console.log('🚀 Initializing API...');
 
-// Initialize DB connection on startup
-const initializeDB = async () => {
+// Track database initialization
+let dbInitialized = false;
+let dbError = null;
+
+// Initialize DB connection asynchronously
+(async () => {
   try {
     if (!process.env.MONGO_URI) {
-      console.warn('⚠️  MONGO_URI not set - API will work but without database');
+      console.warn('⚠️  MONGO_URI not set - Running without MongoDB');
+      dbInitialized = true;
       return;
     }
-    const result = await connection();
+    
+    console.log('🔄 Connecting to MongoDB...');
+    await connection();
+    dbInitialized = true;
     console.log('✅ Database connection established');
-    return result;
   } catch (error) {
-    console.error('⚠️  Database initialization error:', error.message);
-    // Don't throw - allow API to run without DB for now
-    // Routes will fail gracefully
+    dbError = error.message;
+    dbInitialized = true; // Mark as initialized even with error
+    console.error('⚠️  Database connection failed:', error.message);
+    console.error('Error details:', error);
   }
-};
-
-// Call initialization but don't block on failure
-initializeDB().catch(err => {
-  console.error('Fatal initialization error:', err);
-});
+})();
 
 // ============ HEALTH CHECK ENDPOINTS ============
 
@@ -153,11 +156,13 @@ app.use((err, req, res, next) => {
 // Catch any unhandled rejections
 process.on('unhandledRejection', (reason, promise) => {
   console.error('❌ Unhandled Rejection at:', promise, 'reason:', reason);
+  // Don't exit in serverless - other requests might still be processing
 });
 
 process.on('uncaughtException', (error) => {
   console.error('❌ Uncaught Exception:', error);
-  process.exit(1);
+  // Don't call process.exit() in serverless - this kills the function
+  // Instead, log and continue
 });
 
 // ============ EXPORT FOR VERCEL ============
