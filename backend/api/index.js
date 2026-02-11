@@ -56,17 +56,23 @@ console.log('🚀 Initializing API...');
 const initializeDB = async () => {
   try {
     if (!process.env.MONGO_URI) {
-      throw new Error('❌ MONGO_URI is not set in environment variables');
+      console.warn('⚠️  MONGO_URI not set - API will work but without database');
+      return;
     }
-    await connection();
-    console.log('✅ Database initialized');
+    const result = await connection();
+    console.log('✅ Database connection established');
+    return result;
   } catch (error) {
     console.error('⚠️  Database initialization error:', error.message);
-    // Continue running even if DB fails initially
+    // Don't throw - allow API to run without DB for now
+    // Routes will fail gracefully
   }
 };
 
-initializeDB();
+// Call initialization but don't block on failure
+initializeDB().catch(err => {
+  console.error('Fatal initialization error:', err);
+});
 
 // ============ HEALTH CHECK ENDPOINTS ============
 
@@ -142,6 +148,16 @@ app.use((err, req, res, next) => {
     message,
     error: process.env.NODE_ENV === 'production' ? {} : { stack: err.stack }
   });
+});
+
+// Catch any unhandled rejections
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('❌ Unhandled Rejection at:', promise, 'reason:', reason);
+});
+
+process.on('uncaughtException', (error) => {
+  console.error('❌ Uncaught Exception:', error);
+  process.exit(1);
 });
 
 // ============ EXPORT FOR VERCEL ============
