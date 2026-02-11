@@ -8,13 +8,13 @@ import mongoose from 'mongoose';
 dotenv.config();
 
 // Import Routes
-import AuthRouter from '../backend/Routes/AuthRouter.js';
-import ProductRouter from '../backend/Routes/ProductRouter.js';
-import ProductRouteDynamic from '../backend/Routes/ProductRouteDynamic.js';
-import GetAllProducts from '../backend/Routes/GetAllProducts.js';
+import AuthRouter from '../Routes/AuthRouter.js';
+import ProductRouter from '../Routes/ProductRouter.js';
+import ProductRouteDynamic from '../Routes/ProductRouteDynamic.js';
+import GetAllProducts from '../Routes/GetAllProducts.js';
 
 // Import Database Connection
-import connection from '../backend/Models/db.js';
+import connection from '../Models/db.js';
 
 // Create Express app
 const app = express();
