@@ -17,5 +17,12 @@
     "JWT_SECRET": "@jwt_secret",
     "NODE_ENV": "production",
     "FRONTEND_URL": "@frontend_url"
+  },
+  "functions": {
+    "api/index.js": {
+      "memory": 3008,
+      "maxDuration": 60
+    }
   }
 }
+
