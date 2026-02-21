@@ -1,19 +1,13 @@
 import express from "express";
-import path from "path";
 import dotenv from "dotenv";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import mongoose from "mongoose";
 
-import connection from "./Models/db.js";
-
-import AuthRouter from "./Routes/AuthRouter.js";
-import ProductRouter from "./Routes/ProductRouter.js";
-import ProductRouteDynamic from "./Routes/ProductRouteDynamic.js";
-import GetAllProducts from "./Routes/GetAllProducts.js";
-
+/* ================= ENV ================= */
 dotenv.config();
 
+/* ================= APP INIT ================= */
 const app = express();
 
 /* ================= MIDDLEWARE ================= */
@@ -33,7 +27,7 @@ app.use(
   })
 );
 
-/* ================= DB CONNECTION (SERVERLESS SAFE) ================= */
+/* ================= DB (SERVERLESS SAFE) ================= */
 let isConnected = false;
 
 const connectDB = async () => {
@@ -60,10 +54,10 @@ const withDB = async (req, res, next) => {
 };
 
 /* ================= ROUTES ================= */
-import AuthRouter from "./routes/auth.routes.js";
-import ProductRouter from "./routes/product.routes.js";
-import ProductRouteDynamic from "./routes/addProduct.routes.js";
-import GetAllProducts from "./routes/getAllProducts.routes.js";
+import AuthRouter from "./Routes/AuthRouter.js";
+import ProductRouter from "./Routes/ProductRouter.js";
+import ProductRouteDynamic from "./Routes/ProductRouteDynamic.js";
+import GetAllProducts from "./Routes/GetAllProducts.js";
 
 app.get("/", withDB, (req, res) => {
   res.json({ message: "API running ✅" });
