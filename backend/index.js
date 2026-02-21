@@ -26,25 +26,53 @@ app.use(
     origin: [
       "http://localhost:5173",
       "http://localhost:5174",
-      "https://productstack.vercel.app/",
-      process.env.FRONTEND_URL, // Vercel frontend
+      "https://productstack.vercel.app",
+      process.env.FRONTEND_URL,
     ],
     credentials: true,
   })
 );
 
-/* ================= DB ================= */
-connection();
+/* ================= DB CONNECTION (SERVERLESS SAFE) ================= */
+let isConnected = false;
+
+const connectDB = async () => {
+  if (isConnected) return;
+
+  try {
+    await mongoose.connect(process.env.MONGODB_URI);
+    isConnected = true;
+    console.log("✅ MongoDB connected");
+  } catch (error) {
+    console.error("❌ MongoDB connection failed:", error);
+    throw error;
+  }
+};
+
+/* ================= DB MIDDLEWARE ================= */
+const withDB = async (req, res, next) => {
+  try {
+    await connectDB();
+    next();
+  } catch (err) {
+    next(err);
+  }
+};
 
 /* ================= ROUTES ================= */
-app.get("/", (req, res) => {
+import AuthRouter from "./routes/auth.routes.js";
+import ProductRouter from "./routes/product.routes.js";
+import ProductRouteDynamic from "./routes/addProduct.routes.js";
+import GetAllProducts from "./routes/getAllProducts.routes.js";
+
+app.get("/", withDB, (req, res) => {
   res.json({ message: "API running ✅" });
 });
 
-app.use("/api/auth", AuthRouter);
-app.use("/api/products", ProductRouter);
-app.use("/api/addproduct", ProductRouteDynamic);
-app.use("/api/getallproducts", GetAllProducts);
+app.use("/api/auth", withDB, AuthRouter);
+app.use("/api/products", withDB, ProductRouter);
+app.use("/api/addproduct", withDB, ProductRouteDynamic);
+app.use("/api/getallproducts", withDB, GetAllProducts);
 
 /* ================= ERROR HANDLING ================= */
 app.use((req, res) => {
@@ -52,7 +80,7 @@ app.use((req, res) => {
 });
 
 app.use((err, req, res, next) => {
-  console.error(err);
+  console.error("❌ Error:", err);
   res.status(500).json({ message: "Internal Server Error" });
 });
 
