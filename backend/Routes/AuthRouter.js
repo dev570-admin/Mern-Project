@@ -2,7 +2,7 @@
 import { Router } from "express";
 import { SignUp,Login ,Logout} from '../Controllers/authcontroller.js';
 import { SignUpValidation, LoginValidation } from '../Middleware/AuthValidation.js';
-
+import AuthRouter from "../routes/AuthRouter.js";
 
 
 const router = Router();
