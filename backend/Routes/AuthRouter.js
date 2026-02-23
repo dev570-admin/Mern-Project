@@ -1,20 +1,19 @@
-   // Routes/Authrouter.js
 import { Router } from "express";
-import { SignUp,Login ,Logout} from '../Controllers/authcontroller.js';
-import { SignUpValidation, LoginValidation } from '../Middleware/AuthValidation.js';
-import AuthRouter from "../routes/AuthRouter.js";
-
+import { SignUp, Login, Logout } from "../Controllers/authcontroller.js";
+import {
+  SignUpValidation,
+  LoginValidation,
+} from "../Middleware/AuthValidation.js";
 
 const router = Router();
 
 // POST /api/auth/login
-router.post('/login', LoginValidation, Login);
+router.post("/login", LoginValidation, Login);
 
 // POST /api/auth/signup
-router.post('/signup', SignUpValidation, SignUp);//http://localhost:5000/api/auth/signup
-// Get Api
-router.get("/logout", Logout) //http://localhost:5000/api/auth/logout
-// add product api
+router.post("/signup", SignUpValidation, SignUp);
 
+// GET /api/auth/logout
+router.get("/logout", Logout);
 
 export default router;
