@@ -2,6 +2,7 @@
 import { Router } from "express";
 import ensureAuthenticated from "../Middleware/AuthProduct.js";
 import ProductModel from "../Models/Product.js";
+import AuthRouter from "./AuthRouter.js";
 
 const router = Router();
 
@@ -17,3 +18,4 @@ router.get("/", ensureAuthenticated, async (req, res) => {
 });
 
 export default router;
+
