@@ -3,7 +3,7 @@ import dotenv from "dotenv";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import mongoose from "mongoose";
-import AuthRouter from "../routes/AuthRouter.js";
+
 /* ================= ENV ================= */
 dotenv.config();
 
@@ -32,8 +32,15 @@ let isConnected = false;
 
 async function connectDB() {
   if (isConnected) return;
-  await mongoose.connect(process.env.MONGODB_URI);
-  isConnected = true;
+
+  try {
+    await mongoose.connect(process.env.MONGODB_URI);
+    isConnected = true;
+    console.log("✅ MongoDB connected");
+  } catch (err) {
+    console.error("❌ MongoDB error:", err.message);
+    throw err;
+  }
 }
 
 /* ================= DB MIDDLEWARE ================= */
@@ -42,7 +49,7 @@ async function withDB(req, res, next) {
     await connectDB();
     next();
   } catch (err) {
-    next(err);
+    res.status(500).json({ message: "Database connection failed" });
   }
 }
 
@@ -67,7 +74,7 @@ app.use((req, res) => {
 });
 
 app.use((err, req, res, next) => {
-  console.error(err);
+  console.error("❌ Error:", err);
   res.status(500).json({ message: "Internal Server Error" });
 });
 
