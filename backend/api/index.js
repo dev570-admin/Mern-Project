@@ -4,7 +4,7 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import mongoose from "mongoose";
 
-// Import your routers
+// Routes
 import AuthRouter from "../Routes/AuthRouter.js";
 import ProductRouter from "../Routes/ProductRouter.js";
 import ProductRouteDynamic from "../Routes/ProductRouteDynamic.js";
@@ -14,44 +14,63 @@ dotenv.config();
 
 const app = express();
 
-// Middleware
+/* -------------------- Middleware -------------------- */
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
-app.use(cors({
-    origin: ["http://localhost:5173", "http://localhost:5174", "https://productstack.vercel.app", process.env.FRONTEND_URL],
+
+app.use(
+  cors({
+    origin: [
+      "http://localhost:5173",
+      "http://localhost:5174",
+      "https://productstack.vercel.app",
+      process.env.FRONTEND_URL
+    ],
     credentials: true
-}));
+  })
+);
 
-// Database Connection Logic for Serverless
+/* -------------------- MongoDB (Serverless Safe) -------------------- */
+let cached = global.mongoose;
+
+if (!cached) {
+  cached = global.mongoose = { conn: null, promise: null };
+}
+
 const connectDB = async () => {
-    // Check if we already have a connection to the database
-    if (mongoose.connections[0].readyState) {
-        return;
-    }
+  if (cached.conn) return cached.conn;
 
-    try {
-        await mongoose.connect(process.env.MONGODB_URI, {
-            useNewUrlParser: true,
-            useUnifiedTopology: true,
-        });
+  if (!cached.promise) {
+    cached.promise = mongoose
+      .connect(process.env.MONGODB_URI)
+      .then((mongoose) => {
         console.log("✅ MongoDB connected");
-    } catch (err) {
+        return mongoose;
+      })
+      .catch((err) => {
         console.error("❌ MongoDB connection error:", err.message);
-        // In serverless, we don't want to throw the error immediately 
-        // to avoid crashing the entire function instance prematurely
-    }
+        throw err;
+      });
+  }
+
+  cached.conn = await cached.promise;
+  return cached.conn;
 };
 
-// Middleware to ensure DB is connected before processing requests
+// Ensure DB before every request
 app.use(async (req, res, next) => {
+  try {
     await connectDB();
     next();
+  } catch (err) {
+    res.status(500).json({ message: "Database connection failed" });
+  }
 });
 
-// Routes
+/* -------------------- Routes -------------------- */
 app.get("/", (req, res) => {
-    res.json({ message: "API running on Vercel ✅" });
+  res.json({ message: "API running on Vercel ✅" });
 });
 
 app.use("/api/auth", AuthRouter);
@@ -59,15 +78,14 @@ app.use("/api/products", ProductRouter);
 app.use("/api/addproduct", ProductRouteDynamic);
 app.use("/api/getallproducts", GetAllProducts);
 
-// 404 Handler
+/* -------------------- Errors -------------------- */
 app.use((req, res) => {
-    res.status(404).json({ message: "Route not found" });
+  res.status(404).json({ message: "Route not found" });
 });
 
-// Global Error Handler
 app.use((err, req, res, next) => {
-    console.error("❌ Error:", err);
-    res.status(500).json({ message: "Internal Server Error" });
+  console.error("❌ Error:", err);
+  res.status(500).json({ message: "Internal Server Error" });
 });
 
 export default app;
