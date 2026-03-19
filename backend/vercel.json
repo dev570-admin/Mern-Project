@@ -1,23 +1,14 @@
 {
   "version": 2,
-  "builds": [
-    {
-      "src": "index.js",
-      "use": "@vercel/node",
-      "config": {
-        "includeFiles": [
-          "Routes/**",
-          "Models/**",
-          "Controllers/**",
-          "Middlewares/**"
-        ]
-      }
+  "functions": {
+    "index.js": {
+      "includeFiles": "Routes/**|Models/**|Controllers/**|Middlewares/**"
     }
-  ],
-  "routes": [
+  },
+  "rewrites": [
     {
-      "src": "/(.*)",
-      "dest": "/index.js"
+      "source": "/(.*)",
+      "destination": "/index.js"
     }
   ]
 }
