@@ -1,6 +1,6 @@
 import { Router } from "express";
 import ensureAuthenticated from "../Middleware/AuthProduct.js";
-import ProductModel from "../model/Product.js";
+import ProductModel from "../Models/Product.js";
 
 const router = Router();
 
