@@ -1,8 +1,8 @@
 // routes/ProductRouteDynamic.js
 import express from "express";
 import mongoose from "mongoose";
-import ProductModel from "../model/Product.js";
-import Counter from "../model/Counter.js";
+import ProductModel from "../Models/Product.js";
+import Counter from "../Models/Counter.js";
 import ensureAuthenticated from "../Middleware/AuthProduct.js";
 
 const router = express.Router();
